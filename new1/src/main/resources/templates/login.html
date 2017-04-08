@@ -1,32 +1,55 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-cn" xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8"/>
-    <title>Title</title>
+    <base href="/">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="renderer" content="webkit">
+    <title>登录</title>  
+    <link rel="stylesheet" href="css/news.css">
+    <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
-    <form onsubmit="return false;" method="post">
-        用户名: <input type="text" name="name" id="user"/> <br />
-        密码: <input type="password" name="pass" id="password"/> <br />
-        <input type="submit" id="submit"/>
-    </form>
-    <script src="js/jquery.js"></script>
-    <script>
-        $(
-            function(){
-                $("#submit").on("click",function(){
-                   var promise = $.ajax({
-                            url: "/do_login",
-                            type: "POST",
-                            contentType: "application/json; charset=utf-8",
-                            data: JSON.stringify({username:$("#user").val(),pass:$("#password").val()})
-                    });
-                /* $.post("/do_login",{name:$("#user").val(),pass:$("#password").val()},function(data){
-                     console.log(data);
-                 },"json")*/
-             })
-            }
-        )
-    </script>
+<div class="bg"></div>
+<div class="container">
+    <div class="line bouncein">
+        <div class="xs6 xm4 xs3-move xm4-move">
+            <div style="height:150px;"></div>
+            <div class="media media-y margin-big-bottom">           
+            </div>         
+            <form action="/do_login" method="post">
+            <div class="panel loginbox">
+                <div class="text-center margin-big padding-big-top"><h1>后台管理中心</h1></div>
+                <div class="panel-body" style="padding:30px; padding-bottom:10px; padding-top:10px;">
+                    <div class="form-group">
+                        <div class="field field-icon-right">
+                            <input type="text" class="input input-big input-name" name="name" placeholder="登录账号" data-validate="required:请填写账号" />
+                            <span class="icon icon-user margin-small"></span>
+                            <div class="input-help"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="field field-icon-right">
+                            <input type="password" class="input input-big input-pass" name="pass" placeholder="登录密码" data-validate="required:请填写密码" />
+                            <span class="icon icon-key margin-small"></span>
+                            <div class="input-help">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="padding:30px;">
+                    <div th:text="${erro}"></div>
+                        <input type="submit" class="button button-block bg-main text-big input-big login" value="登录">
+                </div>
+
+            </div>
+            </form>          
+        </div>
+    </div>
+</div>
+<script src="js/jquery.js"></script>
+<script src="js/new1.js"></script>
 </body>
 </html>
