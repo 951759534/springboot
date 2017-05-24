@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh-cn" xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml">
+<body>
+<div th:fragment="header">
+    <div class="header bg-main">
+        <div class="logo margin-big-left fadein-top">
+            <h1><img src="images/y.jpg" class="radius-circle rotate-hover" height="50" alt=""/>新闻发布系统</h1>
+        </div>
+        <div class="head-l" style="float:right;margin-right:50px;">
+            <a href="/login_out" class="button button-little bg-blue"><span class="icon-power-off"></span> 退出登录</a>
+        </div>
+    </div>
+    <div class="leftnav">
+        <div class="leftnav-title"><strong><span class="icon-list"></span>菜单列表</strong></div>
+        <h2><span class="icon-user"></span>基本设置</h2>
+        <ul style="display:block">
+            <li><a href="/admin/adminName"><span class="icon-caret-right"></span>修改用户名</a></li>
+            <li><a href="/admin/changePass"><span class="icon-caret-right"></span>修改密码</a></li>
+        </ul>
+        <h2><span class="icon-pencil-square-o"></span>栏目管理</h2>
+        <ul style="display: block">
+            <li><a href="/admin/addNews"><span class="icon-caret-right"></span>添加新闻</a></li>
+            <li><a href="/admin/newsUpdate"><span class="icon-caret-right"></span>内容管理</a></li>
+            <li><a href="/admin/newsManage"><span class="icon-caret-right"></span>新闻管理</a></li>
+            <li><a href="/admin/adminType"><span class="icon-caret-right"></span>分类管理</a></li>
+        </ul>
+    </div>
+    <ul class="bread">
+        <li><a href="/admin/index" target="right" class="icon-home"> 首页</a></li>
+    </ul>
+</div>
+</body>
+</html>

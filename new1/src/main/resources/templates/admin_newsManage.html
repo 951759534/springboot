@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <base href="/">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="renderer" content="webkit">
+    <title>后台管理中心</title>
+    <link rel="stylesheet" href="css/news.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/animate.css">
+</head>
+<body style="background-color:#f2f9fd;">
+<div th:replace="admin_header::header"></div>
+<div class="admin">
+    <div id="listform">
+        <div class="panel admin-panel">
+            <div class="panel-head"><strong class="icon-reorder"> 内容列表</strong> <a href="" style="float:right; display:none;">添加字段</a></div>
+            <div class="padding border-bottom">
+                <ul class="search" style="padding-left:10px;">
+                    <li> <a class="button border-main icon-plus-square-o" href="/admin/addNews"> 添加内容</a> </li>
+                    <li style="float:right;">
+                        <form action="/admin/newsManage" method="get">
+                            <input type="text" placeholder="请输入搜索关键字" name="se" class="input" style="width:250px; line-height:17px;display:inline-block" />
+                            <input type="submit" class="button border-main icon-search" value="搜索" />
+                        </form>
+                    </li>
+                </ul>
+            </div>
+            <table class="table table-hover text-center">
+                <tr>
+                    <th width="100" style="text-align:left; padding-left:20px;"></th>
+                    <th width="10%">编号</th>
+                    <th>新闻标题</th>
+                    <th>分类</th>
+                    <th width="10%">发布时间</th>
+                    <th width="310" >操作</th>
+                </tr>
+                <volist name="list" id="vo">
+                    <tr th:each="news,obj:${newss}" class="newss">
+                        <td style="text-align:left; padding-left:20px;"></td>
+                        <td th:text="${obj.index+1}"></td>
+                        <td th:text="${news.nTitle}" class="thisTitle"></td>
+                        <td th:text="${news.type_model.tName}" class="thisType"></td>
+                        <td th:text="${news.nTime}" class="thisTime"></td>
+                        <td><div class="button-group" > <a class="button border-main look" href="javascript:;"><span class="icon-lock"></span>查看</a><a class="button border-red del" href="javascript:;"><span class="icon-trash-o"></span>删除</a><span class="t_id" th:text="${news.nId}"></span></div></td>
+                        <input type="hidden" th:value="${news.nContent}" class="thisContent" />
+                    </tr>
+                    <tr>
+                        <td colspan="8">
+                            <div class="pagelist">
+                                <a href="" th:href=@{${path}(page=1,se=(${se}==''?'':${se}))}>首页</a><a th:href=@{${path}(pagelist.page=(${pagelist.page}==1?${pagelist.page}:${pagelist.page}-1),se=${se})}>上一页</a>
+                                <span id="page">
+                                    <a th:each="index,obj:${pagelist.pagelist()}" th:class="(${pagelist.pagelist()[obj.index]}==${pagelist.page})? current : ''" th:text="${pagelist.pagelist()[obj.index]}"
+                                       th:href=@{${path}(page=${pagelist.pagelist()[obj.index]},se=${se})}></a>
+                                    </span>
+                                <a th:href=@{${path}(page=(${pagelist.page}==${pagelist.pageNum}?${pagelist.pageNum}:${pagelist.page}+1),se=${se})}>下一页</a>
+                                <a th:href=@{${path}(page=${pagelist.pageNum},se=${se})}>尾页</a>
+                            </div>
+                        </td>
+                    </tr>
+                </volist>
+            </table>
+        </div>
+    </div>
+</div>
+<div style="text-align:center;"></div>
+<div style="display: none" id="tanchu">
+    <div class="lookMask"></div>
+
+    <div class="looknew">
+        <div class="l_header"><span class="x_close">X</span></div>
+        <div class="formss">
+            <div class="form-x lookcontent" >
+                <div class="form-group">
+                    <div id="Ttitle" style="text-align:center"></div>
+                </div>
+                <div class="form-group">
+                    <span id="type" style="float: right"></span>
+                </div>
+                <div class="form-group">
+                    <span id="date" style="float:right"></span>
+                </div>
+                <div class="form-group" style="width:60%;margin:0 0 0 10%;">
+                    <div name="content" id="content" ></div>
+                </div>
+                <div class="clear"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="js/jquery.js"></script>
+<script src="js/new1.js"></script>
+
+<script>
+    $(function(){
+        $(".look").each(function(index,elem){
+            $(elem).on("click",function(){
+                function getVal(str){
+                    return  thisNews.find("."+str).html()
+                }
+                var thisNews = $(elem).parents(".newss");
+                $("#Ttitle").html(getVal("thisTitle"));
+                $("#type").html(getVal("thisType"));
+                $("#date").html(getVal("thisTime"));
+                var str = thisNews.find(".thisContent").val();
+                var reg1 = /&lt;/g;
+                var reg2 = /&gt;/g;
+                str = str.replace(reg1,"<");
+                str = str.replace(reg2,">");
+                $("#content").html(str);
+                $("#tanchu").css({display:"block"}).removeClass("animated zoomOutLeft")
+                    .find(".looknew").addClass("animated slideInDown");
+                $(".x_close,.lookMask").on("click",function(){
+                    $("#tanchu").addClass("animated zoomOutLeft").fadeOut(500,function(){
+                        $("#content").html("");
+                    });
+                })
+            });
+        });
+        $(".del").each(function(index,elem){
+            $(elem).on("click",function(){
+                   if(confirm("是否删除?不可恢复！！！！！！！")){
+                      $.ajax("admin/delNews",{
+                          success:function(data){
+                              if(data=="success"){
+                                  location.href="admin/adminTip?path=admin/newsManage";
+                              }else{
+                                  alert("删除失败")
+                              }
+                          },
+                          data:{nId:$(elem).siblings(".t_id").html()},
+                          method:"post",
+                          dataType:"text"
+                      });
+                   }
+            });
+        })
+    })
+</script>
+</body>
+</html>

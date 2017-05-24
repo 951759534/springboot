@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <base href="/">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="renderer" content="webkit">
+    <title>新闻发布系统</title>
+    <link rel="stylesheet" href="css/wangEditor.min.css">
+    <link rel="stylesheet" href="css/news.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/animate.css">
+</head>
+<body style="background-color:#f2f9fd;">
+<div th:replace="admin_header::header"></div>
+<div class="admin">
+    <div id="listform">
+        <div class="panel admin-panel">
+            <div class="panel-head"><strong class="icon-reorder"> 内容列表</strong> <a href="" style="float:right; display:none;">添加字段</a></div>
+            <div class="padding border-bottom">
+                <ul class="search" style="padding-left:10px;">
+                    <li> <a class="button border-main icon-plus-square-o" href="/admin/addNews"> 添加内容</a> </li>
+                    <li style="float:right;">
+                        <form action="/admin/newsManage" method="get">
+                            <input type="text" placeholder="请输入搜索关键字" name="se" class="input" style="width:250px; line-height:17px;display:inline-block" />
+                            <input type="submit" class="button border-main icon-search" value="搜索" />
+                        </form>
+                    </li>
+                </ul>
+            </div>
+            <table class="table table-hover text-center">
+                <tr>
+                    <th width="100" style="text-align:left; padding-left:20px;"></th>
+                    <th width="10%">编号</th>
+                    <th>新闻标题</th>
+                    <th>分类</th>
+                    <th width="10%">发布时间</th>
+                    <th width="310" >操作</th>
+                </tr>
+                <volist name="list" id="vo">
+                    <tr th:each="news,obj:${newss}" class="newss">
+                        <td style="text-align:left; padding-left:20px;"></td>
+                        <td th:text="${obj.index+1}"></td>
+                        <td th:text="${news.nTitle}" class="thisTitle"></td>
+                        <td th:text="${news.type_model.tName}" class="thisType"></td>
+                        <td th:text="${news.nTime}" class="thisTime"></td>
+                        <td><div class="button-group" > <a class="button border-main look" href="javascript:;"><span class="icon-lock"></span>查看</a><a class="button border-main update" href="javascript:;">
+                            <span class="icon-edit"></span>修改</a><span class="t_id" th:text="${news.nId}"></span>
+                        </div></td>
+                        <input type="hidden" th:value="${news.nContent}" class="thisContent" />
+                    </tr>
+                    <tr>
+                        <td colspan="8">
+                                  <div class="pagelist">
+                                    <a href="" th:href=@{${path}(page=1)}>首页</a><a th:href=@{${path}(pagelist.page=(${pagelist.page}==1?${pagelist.page}:${pagelist.page}-1),se=${se})}>上一页</a>
+                                    <span id="page">
+                                    <a th:each="index,obj:${pagelist.pagelist()}" th:class="(${pagelist.pagelist()[obj.index]}==${pagelist.page})? current : ''" th:text="${pagelist.pagelist()[obj.index]}"
+                                      th:href=@{${path}(page=${pagelist.pagelist()[obj.index]},se=${se})}></a>
+                                    </span>
+                                    <a th:href=@{${path}(page=(${pagelist.page}==${pagelist.pageNum}?${pagelist.pageNum}:${pagelist.page}+1),se=${se})}>下一页</a>
+                                    <a th:href=@{${path}(page=${pagelist.pageNum},se=${se})}>尾页</a>
+                                  </div>
+                        </td>
+                    </tr>
+                </volist>
+            </table>
+        </div>
+    </div>
+</div>
+<div style="text-align:center;"></div>
+<div style="display: none" id="look_tanchu">
+    <div class="lookMask"></div>
+    <div class="looknew">
+    <div class="l_header"><span class="x_close">X</span></div>
+    <div class="formss">
+        <div class="form-x lookcontent" >
+            <div class="form-group">
+                <div id="Ttitle" style="text-align:center"></div>
+            </div>
+            <div class="form-group">
+                <span id="type" style="float: right"></span>
+            </div>
+            <div class="form-group">
+                <span id="date" style="float:right"></span>
+            </div>
+            <div class="form-group" style="width:60%;margin:0 0 0 10%;">
+                <div name="content" id="content" ></div>
+            </div>
+            <div class="clear"></div>
+        </div>
+    </div>
+</div>
+</div>
+<div style="display: none" id="update_tanchu">
+    <div class="lookMask"></div>
+    <div class="form-x looknew">
+        <div class="l_header"><span class="x_close">X</span></div>
+        <h5 style="text-align: center">新闻修改</h5>
+        <div class="form-group">
+            <div class="label">
+                <label>标题：</label>
+            </div>
+            <div class="field">
+                <input id="Utitle" type="text" class="input w50" value="" name="title" placeholder="标题" autofocus="autofocus"/>
+                <span style="float:left;padding:10px 0 0 20px;"> *限制1-30字符</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label">
+                <label>分类标题:</label>
+            </div>
+            <div class="field">
+                <select name="cid" class="input w50" id="Utype">
+                    <option th:each="type:${types}" th:value="${type.tId}" th:text="${type.tName}"></option>
+                </select>
+                <div class="tips"></div>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="label">
+                <label>内容：</label>
+            </div>
+            <div class="field" style="width:88%;">
+                <textarea name="content" class="input" style="height:300px; border:1px solid #ddd;" id="Ucontent"></textarea>
+                <div class="tips erro"></div>
+            </div>
+        </div>
+        <div class="clear"></div>
+        <div class="form-group">
+            <div class="label">
+                <label></label>
+            </div>
+            <div class="field">
+                <button class="button bg-main icon-check-square-o" id="Usubmit" type="submit"> 提交</button>
+                <span class="erro_tip"></span>
+            </div>
+        </div>
+        </form>
+    </div>
+</div>
+
+<script src="js/jquery.js"></script>
+<script src="js/new1.js"></script>
+<script src="js/wangEditor.min.js"></script>
+<script src = "js/xss.js"></script>
+<script>
+    $(function(){
+
+        $(".look").each(function(index,elem){
+            $(elem).on("click",function(){
+                var thisNews = $(elem).parents(".newss");
+                function getVal(str){
+                    return  thisNews.find("."+str).html()
+                }
+                $("#Ttitle").html(getVal("thisTitle"));
+                $("#type").html(getVal("thisType"));
+                $("#date").html(getVal("thisTime"));
+                var str = thisNews.find(".thisContent").val();
+                var reg1 = /&lt;/g;
+                var reg2 = /&gt;/g;
+                str = str.replace(reg1,"<");
+                str = str.replace(reg2,">");
+                $("#content").html(str);
+                $("#look_tanchu").css({display:"block"}).removeClass("zoomOutLeft")
+                    .find(".looknew").fadeIn(10).addClass("animated slideInDown");
+            });
+        });
+        $(".x_close,.lookMask").on("click",function(){
+            $("#look_tanchu").addClass("animated zoomOutLeft").fadeOut(500,function(){
+                $("#content").html("");
+            }).find("looknew").addClass("animated zoomOutLeft").fadeOut(500,function(){
+                $("#content").html("");
+            });
+
+            $("#update_tanchu").addClass("animated rotateOutUpLeft").fadeOut(500,function(){
+                $("#content").html("");
+            }).find("looknew").addClass("animated rotateOutUpLeft").fadeOut(500,function(){
+                $("#content").html("");
+            });
+        });
+        var editor = new wangEditor('Ucontent');
+        editor.config.menus =[
+            'source',
+            '|',
+            'bold',
+            'underline',
+            'italic',
+            'strikethrough',
+            'eraser',
+            'forecolor',
+            'bgcolor',
+            '|',
+            'quote',
+            'fontfamily',
+            'fontsize',
+            'head',
+            'unorderlist',
+            'orderlist',
+            'alignleft',
+            'aligncenter',
+            'alignright',
+            '|',
+            'link',
+            'unlink',
+            'table',
+            'emotion',
+            '|',
+            'video',
+            'insertcode',
+            '|',
+            'undo',
+            'redo'
+        ];
+        editor.create();
+        var contentflag = "";
+        var nId;
+        $(".update").each(function(index,elem){
+            $(elem).on("click",function(){
+                var thisNews = $(elem).parents(".newss");
+                function getVal(str){
+                    return  thisNews.find("."+str).html();
+                }
+                $("#update_tanchu").css({display:"block"}).removeClass("rotateOutUpLeft")
+                 .find(".looknew").fadeIn(10).addClass("animated rotateInDownLeft");
+                $("#update_tanchu #Utitle").val(getVal("thisTitle"));
+                var str = thisNews.find(".thisContent").val();
+                contentflag = str;
+                var reg1 = /&lt;/g;
+                var reg2 = /&gt;/g;
+                str = str.replace(reg1,"<");
+                str = str.replace(reg2,">");
+                editor.$txt.html(str);
+                nId = $(elem).siblings(".t_id").html();
+            });
+        });
+        $("#update_tanchu #Utitle").on("blur",function(){
+            var reg = /^[\w\s|\u4e00-\u9fa5\u3000-\u301e\ufe10-\ufe19\ufe30-\ufe44\ufe50-\ufe6b\uff01-\uffee-=\+\?\*]{1,30}$/;
+            if(!reg.test($(this).val())){
+                $(this).siblings("span").addClass("erro_tip");
+            }else{
+                $(this).siblings("span").removeClass("erro_tip");
+            }
+        });
+        editor.$txt.on("blur",function(){
+            if(editor.$txt.text().replace(/\s/g,"").length<20){
+                $(".erro").addClass("erro_tip").html("至少20个字");
+            }else if(filterXSS(editor.$txt.html()) == contentflag){
+                $(".erro").addClass("erro_tip").html("内容重复");
+            }else {
+                $(".erro").removeClass("erro_tip").html("");
+            }
+        });
+        editor.$txt.on("focus",function(){
+            $(".erro_tip").html("");
+        });
+        $("#update_tanchu #Usubmit").on("click",function(){
+            $("#update_tanchu #Utitle").trigger("blur");
+            editor.$txt.trigger("blur");
+            if(!$("#Utitle").siblings("span").hasClass("erro_tip")&&$(".erro").html() == ""){
+                var text = editor.$txt.html();
+                text =  filterXSS(text);
+                $(this).siblings(".erro_tip").html("");
+                var title = $("#Utitle").val();
+                var type = $("#Utype").val();
+                var content = text;
+                $.ajax("/admin/updateNews",{
+                    type:"POST",
+                    dataType:"text",
+                    success:function(data){
+                        console.log(data);
+                        if(data=="success"){
+                            location.href="admin/adminTip?path=admin/newsUpdate";
+                            }else{
+                            $(this).siblings(".erro_tip").html("添加失败")
+                        }
+                    },
+                    data:{
+                        nId:nId,
+                        title:title,
+                        type:type,
+                        content:content
+                    }
+                });
+            }else{
+                $(this).siblings(".erro_tip").html("请按格式输入");
+            }
+
+        })
+
+    })
+</script>
+</body>
+</html>

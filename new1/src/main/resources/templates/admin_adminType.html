@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+  <base href="/">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="renderer" content="webkit">
+  <title>新闻发布系统</title>
+  <link rel="stylesheet" href="css/news.css">
+  <link rel="stylesheet" href="css/admin.css">
+
+</head>
+<body style="background-color:#f2f9fd;">
+
+<div th:replace="admin_header::header"></div>
+<div class="admin">
+  <div class="panel admin-panel">
+    <div class="panel-head"><strong class="icon-reorder"> 内容列表</strong></div>
+    <div class="padding border-bottom">
+      <a href="/admin/addNews"><button type="button" class="button border-blue"><span class="icon-plus-square-o"></span>添加新闻</button></a>
+      <span id="doAddtype" style="display:none;"><button type="button" class="button border-blue"><span class="icon-plus-square-o"></span>添加标题</button></span>
+    </div>
+    <table class="table table-hover text-center">
+      <tr>
+        <th width="10%">ID</th>
+        <th>标题</th>
+        <th width="15%" >操作</th>
+      </tr>
+      <tr th:each="type,obj:${types}" class="types">
+        <td th:text="${obj.count}"></td>
+        <td th:text="${type.tName}" class="type">标题</td>
+        <td>
+          <div class="button-group">
+            <span class="button border-main doUpdate"><span class="icon-edit"></span> 修改</span>
+            <span class="button border-red delT"><span class="icon-trash-o"></span> 删除</span>
+            <span style="display:none" class="t_id" th:text="${type.tId}"></span>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <div class="pagelist">
+    <a href="" th:href=@{${path}(page=1)}>首页</a>
+    <a th:href=@{${path}(pagelist.page=(${pagelist.page}==1?${pagelist.page}:${pagelist.page}-1),se=${se})}>上一页</a>
+    <span id="page">
+                                    <a th:each="index,obj:${pagelist.pagelist()}" th:class="(${pagelist.pagelist()[obj.index]}==${pagelist.page})? current : ''" th:text="${pagelist.pagelist()[obj.index]}"
+                                       th:href=@{${path}(page=${pagelist.pagelist()[obj.index]},se=${se})}></a>
+                                    </span>
+    <a th:href=@{${path}(page=(${pagelist.page}==${pagelist.pageNum}?${pagelist.pageNum}:${pagelist.page}+1),se=${se})}>下一页</a>
+    <a th:href=@{${path}(page=${pagelist.pageNum},se=${se})}>尾页</a>
+  </div>
+  <div class="panel admin-panel margin-top" id="add">
+    <div class="panel-head"><span class="icon-pencil-square-o"></span><strong id="doTitle">添加标题</strong></div>
+    <div class="body-content">
+      <div class="form-x">
+        <div class="form-group">
+          <div class="label">
+            <label>标题：</label>
+          </div>
+          <div class="field">
+            <input type="text" class="input w50 aType" value="" name="title"/> <span class="erro_position">*限制1-10字以内</span>
+            <div class="tips"></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="label">
+            <label></label>
+          </div>
+          <div class="field">
+            <span id="addType"><button class="button bg-main icon-check-square-o"  type="submit">添加标题</button><span style="margin-left:20px;" class="erro_tip erro_tipS"></span></span>
+            <span id="updateType" style="display:none;"><button class="button bg-main icon-check-square-o" type="submit" >修改标题</button><span style="margin-left:20px;" class="erro_tip erro_tipS"></span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div style="text-align:center;">
+</div>
+<script src="js/jquery.js"></script>
+<script src="js/new1.js"></script>
+<script th:inline="javascript">
+    $(
+        function(){
+            var arr = [];
+            $(".type").each(function(){
+                arr.push($(this).html());
+            });
+            $(".aType").on("blur",function(){
+                var reg = /^[\w\u4e00-\u9fa5\u3000-\u301e\ufe10-\ufe19\ufe30-\ufe44\ufe50-\ufe6b\uff01-\uffee-=\+\?\*]{1,10}$/;
+                if(reg.test($(this).val())){
+                    $(".erro_position").removeClass("erro_tip");
+                }else{
+                    $(".erro_position").addClass("erro_tip");
+                }
+            });
+            $("#addType").on("click",function(){
+                var newType = $(".aType").trigger("blur").val();
+                  if(!$(".aType").siblings(".erro_position").hasClass("erro_tip")){
+                      if(arr.indexOf(newType) ==-1){
+                          $(".erro_tipS").html("");
+                          $.ajax({
+                              url:"admin/addType",
+                              dataType:"text",
+                              method:"POST",
+                              success:function (data) {
+                                  if(data == "success"){
+                                      location.href = "/admin/adminTip?path=admin/adminType"
+                                  }else{
+                                      $(".erro_tipS").html(data);
+                                  }
+                              },
+                              data:{
+                                  newType:newType
+                              }
+                              }
+                          )
+                      }else{
+                          $(".erro_tipS").html("标题重复");
+                      }
+                  }else{
+                      $(".erro_tipS").html("格式错误");
+                  }
+            });
+            $(".delT").on("click",function(){
+                if(confirm("是否要删除此标题")){
+                    var tId = $(this).siblings(".t_id").html();
+                      $.ajax("admin/delType",{
+                          data:{tId:tId},
+                          dataType:"text",
+                          method:"POST",
+                          success:function(data){
+                            if(data=="success"){
+                                location.href = "/admin/adminTip?path=admin/adminType";
+                            }else{
+                                alert("删除失败!");
+                            }
+                          }
+                      });
+                }
+            });
+            var tId;
+            $(".doUpdate").on("click",function(){
+                   tId = $(this).siblings(".t_id").html();
+                $("#doAddtype").fadeIn(500);
+                $("#doTitle").html("修改标题");
+                $("#addType").fadeOut(10,function () {
+                    $("#updateType").fadeIn(10);
+                });
+               var str = $(this).parents(".types").find(".type").html();
+               $(".aType").val(str);
+            });
+            $("#doAddtype").on("click",function(){
+                $("#doTitle").html("添加标题");
+                $("#updateType").fadeOut(10,function () {
+                    $("#addType").fadeIn(10);
+                });
+                $(".aType").val("");
+                $(this).fadeOut(500);
+            });
+            $("#updateType").on("click",function(){
+                var newType = $(".aType").trigger("blur").val();
+                console.log(tId);
+                if(!$(".aType").siblings(".erro_position").hasClass("erro_tip")){
+                    if(arr.indexOf(newType) ==-1){
+                        $(".erro_tipS").html("");
+                        $.ajax({
+                                url:"admin/uptType",
+                                dataType:"text",
+                                method:"POST",
+                                success:function (data) {
+                                    if(data == "success"){
+                                        location.href = "/admin/adminTip?path=admin/adminType";
+                                        console.log(data);
+                                    }else{
+                                        $(".erro_tipS").html(data);
+                                    }
+                                },
+                                data:{
+                                    tId:tId,
+                                    newType:newType
+                                }
+                            }
+                        )
+                    }else{
+                        $(".erro_tipS").html("标题重复");
+                    }
+                }else{
+                    $(".erro_tipS").html("格式错误");
+                }
+            })
+        }
+    )
+</script>
+</body>
+</html>
